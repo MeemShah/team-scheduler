@@ -35,17 +35,17 @@ async def get_team():
 
     except Exception as e:
         logging.error("Unexpected error occurred", exc_info=True)
-        return send_error("Something went wrong",None,200)
+        return send_error("Something went wrong ! we are working on it ;D",None,200)
     
 
-@router.get("/{today_date}", status_code=status.HTTP_200_OK)
+@router.get("/{day_date}", status_code=status.HTTP_200_OK)
 async def get_team(
-   today_date: date = Path(..., example=date.today())
+   day_date: date = Path(..., example=date.today())
     ):
     try:
         teamScheduler=TeamScheduler()
         pair, total_working_days = teamScheduler.get_todays_working_pair(
-            INITIAL_DATE, today_date, TEAM_PAIRS, PAIR_SEQUENCE
+            INITIAL_DATE, day_date, TEAM_PAIRS, PAIR_SEQUENCE
         )
 
         return send_data("Team retrieved Successful", {
@@ -54,7 +54,7 @@ async def get_team(
         })
 
     except InitialDateAfterTodayError as e:
-        return send_data("Initial date after todays date")
+        return send_data("Whoa there, time traveler! Your initial date is in the future. Try picking something from this timeline.")
 
     except WeekendError:
         return send_data("Happy Weekend")
