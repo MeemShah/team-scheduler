@@ -11,4 +11,4 @@ TEAM_PAIRS = [
     ("Aqib", "Ishmam"),
 ]
 
-PAIR_SEQUESNCE=[0,1,2,3,4,5] # sequence always start from 0 index
+PAIR_SEQUENCE=[0,1,2,3,4,5] # sequence always start from 0 index
