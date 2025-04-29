@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: team-scheduler
+    ports:
+      - "5001:5001"
+    environment:
+      - MODE=debug
+      - SERVICE_NAME=team-scheduler
+      - HTTP_PORT=5001
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge

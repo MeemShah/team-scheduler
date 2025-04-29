@@ -1,6 +1,6 @@
 from datetime import date
 
-INITIAL_DATE = date(2025, 4, 28)
+INITIAL_DATE = date(2025, 4, 1)
 
 TEAM_PAIRS = [
     ("Siam", "Aqib"),
