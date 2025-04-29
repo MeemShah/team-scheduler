@@ -8,6 +8,9 @@ config = Config()
 configure_logger(LogLevels.info)
 
 app = FastAPI()
+@app.get("/")
+def read_root():
+    return {"message": "Team Scheduler API is running"}
 
 register_routes(app)
 
