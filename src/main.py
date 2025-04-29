@@ -13,4 +13,4 @@ register_routes(app)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, port=config.http_port,reload=True)
+    uvicorn.run(app, port=config.http_port)
