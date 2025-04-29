@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status, Request
+from fastapi import Path
 from datetime import date
 from ...team_scheduler.service import TeamScheduler
 from ..utiils.send_data import send_data
@@ -8,18 +9,43 @@ from ...exceptions import InitialDateAfterTodayError,WeekendError,InternalServer
 import logging
 
 router = APIRouter(
-    prefix="/team-scheduler",
+    prefix="/team-pair",
     tags=["TeamScheduler"]
 )
 
-@router.get("/", status_code=status.HTTP_201_CREATED)
+@router.get("/today", status_code=status.HTTP_200_OK)
 async def get_team():
     try:
         today = date.today()
-        #today=date(2025,5,1)
         teamScheduler=TeamScheduler()
         pair, total_working_days = teamScheduler.get_todays_working_pair(
             INITIAL_DATE, today, TEAM_PAIRS, PAIR_SEQUENCE
+        )
+
+        return send_data("Team retrieved Successful", {
+            "team_member": pair,
+            "total_working_days": total_working_days
+        })
+
+    except InitialDateAfterTodayError as e:
+        return send_data("Initial date after todays date")
+
+    except WeekendError:
+        return send_data("Happy Weekend")
+
+    except Exception as e:
+        logging.error("Unexpected error occurred", exc_info=True)
+        return send_error("Something went wrong",None,200)
+    
+
+@router.get("/{today_date}", status_code=status.HTTP_200_OK)
+async def get_team(
+   today_date: date = Path(..., example=date.today())
+    ):
+    try:
+        teamScheduler=TeamScheduler()
+        pair, total_working_days = teamScheduler.get_todays_working_pair(
+            INITIAL_DATE, today_date, TEAM_PAIRS, PAIR_SEQUENCE
         )
 
         return send_data("Team retrieved Successful", {
