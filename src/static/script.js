@@ -4,7 +4,7 @@ async function callApi(date = 'today') {
   document.body.classList.remove('weekend');
 
   try {
-    const res = await fetch(`http://localhost:8000/team-pair/${date}`);
+    const res = await fetch(`https://team-scheduler-4.onrender.com/team-pair/${date}`);
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
     const result = await res.json();
