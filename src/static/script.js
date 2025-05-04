@@ -21,50 +21,70 @@ async function callApi(date) {
         <img src="/static/relax.jpg" alt="Weekend Vibes" class="weekend-img" />
       `;
     } else {
-      const teamMembers = data.members.map(pair => `
-          <tr>
-              <td>${pair[0]}</td>
-              <td>${pair[1]}</td>
-          </tr>
-      `).join('');
-  
       const totalDays = data.total_working_days;
       const scheduledToWork = data.scheduled_to_work.join(', ');
   
       document.title = "Team Schedule";
   
       htmlContent += `
-          <div class="team-info">
-              <p><strong>Team Name:</strong> ${data.team_name}</p>
-              <p><strong>Team Lead:</strong> ${data.team_lead}</p>
-              <p><strong>Scheduled to Work:</strong> ${scheduledToWork}</p>
-              <div class="total-days">
-                  <strong>Total Working Days:</strong> ${totalDays}
-              </div>
+        <div class="team-info-card">
+          <h2>${data.team_name}</h2>
+          <p><strong>Team Lead:</strong> <span>${data.team_lead}</span></p>
+          <p><strong>Scheduled to Work:</strong></p>
+          <ul class="schedule-list">
+            ${data.scheduled_to_work.map(member => `<li>${member}</li>`).join('')}
+          </ul>
+          <div class="total-days-highlight">
+            <strong>Total Working Days:</strong> ${totalDays}
           </div>
-          
-          <div class="team-members-table">
-              <h3>Team Members Pairs:</h3>
-              <table>
-                  <thead>
-                      <tr>
-                          <th>Member 1</th>
-                          <th>Member 2</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      ${teamMembers}
-                  </tbody>
-              </table>
-          </div>
+        </div>
       `;
-  }
-  
+    }
 
     responseElement.innerHTML = htmlContent;
 
   } catch (error) {
     responseElement.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+  }
+}
+
+async function getTeamApi(teamId) {
+  const membersDiv = document.getElementById("team-members");
+  membersDiv.innerHTML = '<p>Loading team members...</p>';
+
+  try {
+    const res = await fetch(`http://localhost:8000/team/v1/${teamId}/members`);
+    if (!res.ok) throw new Error(`Invalid Team Id! status: ${res.status}`);
+
+    const result = await res.json();
+    const { data } = result;
+
+    if (data && data.members.length > 0) {
+      let tableHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Member 1</th>
+              <th>Member 2</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.members.map(pair => `
+              <tr>
+                <td>${pair[0]}</td>
+                <td>${pair[1]}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      membersDiv.innerHTML = tableHTML;
+    } else {
+      membersDiv.innerHTML = '<p>No team member pairs found.</p>';
+    }
+
+  } catch (error) {
+    membersDiv.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
   }
 }
 
@@ -97,4 +117,5 @@ function showConfetti() {
 window.onload = () => {
   const today = new Date().toISOString().split('T')[0]; 
   callApi(today);
+  getTeamApi(1);
 };

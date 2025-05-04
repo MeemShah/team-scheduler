@@ -158,7 +158,6 @@ body {
     transform: scale(1.05);
   }
   
-  /* Tooltip enhancement (extra feature) */
   .tooltip {
     position: relative;
     display: inline-block;
@@ -218,3 +217,58 @@ body {
     }
   }
   
+  .team-members-container {
+    width: 300px;
+    background: rgba(255, 255, 255, 0.8); /* transparent white */
+    backdrop-filter: blur(8px); /* blur effect for glassmorphism */
+    padding: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    position: absolute;
+    right: 30px;
+    top: 200px;
+    transition: all 0.3s ease;
+  }
+  
+  /* Style for the table inside the team members container */
+  .team-members-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 16px;
+  }
+  
+  .team-members-container th,
+  .team-members-container td {
+    padding: 10px;
+    border: 1px solid #007bff; /* bright blue borders */
+    text-align: left;
+  }
+  
+  .team-members-container th {
+    background-color: #e6f0ff; /* light blue */
+    color: #003366; /* dark text */
+    font-weight: bold;
+  }
+  
+  .team-members-container td {
+    background-color: rgba(255, 255, 255, 0.6);
+    color: #333;
+  }
+  
+  @media (max-width: 768px) {
+    .team-members-container {
+      position: relative;
+      width: 100%;
+      margin-top: 20px;
+      margin-left: 20px;
+      right: 0;
+      top: auto;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: none;
+    }
+  }
+  
+  .team-members-container tr:hover {
+    background-color: #34b8e7;
+  }

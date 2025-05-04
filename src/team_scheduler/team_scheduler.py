@@ -88,3 +88,7 @@ class TeamScheduler:
 ):
         team_info =self.team_repo.get_team(team_id)
         return team_info.team_pairs
+    
+    def get_team(self, team_id: int):
+        return self.team_repo.get_team(team_id)
+
