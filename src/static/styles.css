@@ -54,11 +54,15 @@ body {
     text-align: center;
     max-width: 800px;
     padding: 20px 30px;
-    background-color: white;
+    background: linear-gradient(rgba(237, 0, 0, 0.9), rgba(16, 13, 175, 0.9)),url('developer.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     border-radius: 16px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     animation: fadeIn 1s ease-out;
   }
+  
   
   h1 {
     font-size: 36px;
@@ -108,7 +112,7 @@ body {
   
   .total-days {
     background-color: #cce4ff;
-    color: #1a73e8;
+    color: #2ecdcd;
     font-weight: bold;
     padding: 14px 20px;
     border-radius: 10px;
@@ -186,7 +190,6 @@ body {
     opacity: 1;
   }
   
-  /* Responsive */
   @media (max-width: 768px) {
     .container {
       padding: 15px;
@@ -219,8 +222,8 @@ body {
   
   .team-members-container {
     width: 300px;
-    background: rgba(255, 255, 255, 0.8); /* transparent white */
-    backdrop-filter: blur(8px); /* blur effect for glassmorphism */
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
     padding: 20px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     border-radius: 16px;
@@ -230,7 +233,6 @@ body {
     transition: all 0.3s ease;
   }
   
-  /* Style for the table inside the team members container */
   .team-members-container table {
     width: 100%;
     border-collapse: collapse;
@@ -241,13 +243,13 @@ body {
   .team-members-container th,
   .team-members-container td {
     padding: 10px;
-    border: 1px solid #007bff; /* bright blue borders */
+    border: 1px solid #007bff;
     text-align: left;
   }
   
   .team-members-container th {
-    background-color: #e6f0ff; /* light blue */
-    color: #003366; /* dark text */
+    background-color: #e6f0ff;
+    color: #003366;
     font-weight: bold;
   }
   

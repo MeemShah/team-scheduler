@@ -7,5 +7,3 @@ class TeamInfoResponse(BaseModel):
     team_lead: str
     initial_start_date: date
     team_pairs: List[Tuple[str, str]]
-    todays_working_pair: Tuple[str,str] | None = None
-    total_working_days: int | None= None

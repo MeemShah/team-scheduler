@@ -9,7 +9,7 @@ class WeekendError(TeamSchedulerError):
         message = "Happy Weekend"
         super().__init__(status_code=200, detail=message)
 
-class InitialDateAfterTodayError(TeamSchedulerError):
+class InitialDateAfterQueryDateError(TeamSchedulerError):
     def __init__(self, initial_date, todays_date):
         message = (
             f"The initial date ({initial_date}) is after today's date ({todays_date}). "

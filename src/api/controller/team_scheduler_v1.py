@@ -1,11 +1,9 @@
 from fastapi import APIRouter, status, Request, Depends, Query
-from fastapi import Path
 from datetime import date
-from ...team_scheduler.team_scheduler import TeamScheduler
 from ..utiils.send_data import send_data
 from ..utiils.send_error import send_error
 from ...dto.config import INITIAL_DATE,TEAM_PAIRS,PAIR_SEQUENCE
-from ...exceptions import InitialDateAfterTodayError,WeekendError,InternalServerError
+from ...exceptions import WeekendError
 import logging
 from .startup import get_controller
 from .controller import Controller
@@ -14,25 +12,22 @@ router = APIRouter(
     tags=["TeamScheduler"]
 )
 
-@router.get("/{team_id}", status_code=status.HTTP_200_OK)
+@router.get("/{team_id}/schedule", status_code=status.HTTP_200_OK)
 async def get_team(
     team_id: int,
     query_date: date = Query(default_factory=date.today),
     controller: Controller = Depends(get_controller),
     ):
     try:
-        response = controller.team_scheduler_svc._all(
+        scheduled_to_work,total_working_day = controller.team_scheduler_svc.get_schedule(
             team_id,
             query_date
         )
 
         return send_data("Team retrieved Successful", {
-            "team_name":response.team_name,
-            "team_lead":response.team_lead,
-            "scheduled_to_work":response.todays_working_pair,
-            "total_working_days": response.total_working_days
+            "scheduled_to_work":scheduled_to_work,
+            "total_working_days": total_working_day
         })
-
 
     except WeekendError:
         return send_data("Happy Weekend")
@@ -42,20 +37,22 @@ async def get_team(
         return send_error("Something went wrong ! we are working on it ;D",None,200)
     
 
-@router.get("/{team_id}/members")
+@router.get("/{team_id}/details")
 async def get_team(
     team_id: int,
     controller: Controller = Depends(get_controller),
     ):
     try:
-        response = controller.team_scheduler_svc.fetch_team_members(
+        response = controller.team_scheduler_svc.get_team(
             team_id,
         )
 
         return send_data("Team retrieved Successful", {
-            "members":response
+            "name":response.team_name,
+            "lead": response.team_lead,
+            "initial_start_date": str(response.initial_start_date),
+            "pairs": response.team_pairs
         })
-
 
     except WeekendError:
         return send_data("Happy Weekend")

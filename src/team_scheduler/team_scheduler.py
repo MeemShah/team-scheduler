@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from ..exceptions import WeekendError,InitialDateAfterTodayError
+from ..exceptions import WeekendError,InitialDateAfterQueryDateError
 import logging
 from ..database.db import Database
 from ..dto.days import days
@@ -16,24 +16,24 @@ class TeamScheduler:
         self.team_member_repo =team_member_repo
 
 
-    def get_todays_working_pair(
+    def _get_working_pair(
             self, 
             initial_date: date, 
-            today_date: date, 
+            query_date: date, 
             team_pairs: list[tuple[str, str]], 
 ):
-        if initial_date > today_date:
-            logging.error(f"Initial Date After Today Error: Inittial Date {initial_date}, today_date {today_date}")
-            raise InitialDateAfterTodayError(initial_date,today_date)
+        if initial_date > query_date:
+            logging.error(f"Initial Date After Query  Date Error: Inittial Date {initial_date}, query_date {query_date}")
+            raise InitialDateAfterQueryDateError(initial_date,query_date)
         
-        today_name = today_date.strftime("%A")
+        today_name = query_date.strftime("%A")
 
         if self.days[today_name] > 4:
             logging.info("Happy Weekend")
             raise WeekendError()
 
         initial_weekday_name = initial_date.strftime("%A")
-        day_difference = (today_date - initial_date).days + 1
+        day_difference = (query_date - initial_date).days + 1
 
         if day_difference < 7:
             current_team_index = 0
@@ -68,26 +68,15 @@ class TeamScheduler:
         return team_pairs[(team_need_to_work_today - 1) % len(team_pairs)], total_working_days_count
 
 
-    def _all(
-            self, 
-            team_id: int,
-            query_date: date
-):
+    def get_schedule(self, team_id: int,query_date: date):
         team_info =self.team_repo.get_team(team_id)
-        team_info.todays_working_pair,team_info.total_working_days=self.get_todays_working_pair(
+        todays_working_pair,total_working_days=self._get_working_pair(
             team_info.initial_start_date,
             query_date,
             team_info.team_pairs
         )
 
-        return team_info
-    
-    def fetch_team_members(
-            self, 
-            team_id: int,
-):
-        team_info =self.team_repo.get_team(team_id)
-        return team_info.team_pairs
+        return todays_working_pair,total_working_days
     
     def get_team(self, team_id: int):
         return self.team_repo.get_team(team_id)
