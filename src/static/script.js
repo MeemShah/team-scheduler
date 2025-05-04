@@ -5,7 +5,7 @@ async function getSchedule(query_date) {
   document.body.classList.remove('weekend');
 
   try {
-    const res = await fetch(`https://team-scheduler-4.onrender.com/team/v1/1/schedule?query_date=${query_date}`);
+    const res = await fetch(`https://team-scheduler.onrender.com/team/v1/1/schedule?query_date=${query_date}`);
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
     const result = await res.json();
@@ -62,7 +62,7 @@ async function getTeamInfo(teamId) {
   membersDiv.innerHTML = '<p>Loading team members...</p>';
 
   try {
-    const res = await fetch(`https://team-scheduler-4.onrender.com/team/v1/${teamId}/details`);
+    const res = await fetch(`https://team-scheduler.onrender.com/team/v1/${teamId}/details`);
     if (!res.ok) throw new Error(`Invalid Team Id! status: ${res.status}`);
 
     const result = await res.json();
