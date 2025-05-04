@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Request
+from fastapi import APIRouter, status, Request,Depends
 from fastapi import Path
 from datetime import date
 from ...team_scheduler.team_scheduler import TeamScheduler
@@ -7,6 +7,8 @@ from ..utiils.send_error import send_error
 from ...dto.config import INITIAL_DATE,TEAM_PAIRS
 from ...exceptions import InitialDateAfterTodayError,WeekendError,InternalServerError
 import logging
+from .controller import Controller
+from .startup import get_controller
 
 router = APIRouter(
     prefix="/team-pair",
@@ -14,11 +16,10 @@ router = APIRouter(
 )
 
 @router.get("/today", status_code=status.HTTP_200_OK)
-async def get_team():
+async def get_team(controller: Controller = Depends(get_controller)):
     try:
         today = date.today()
-        teamScheduler=TeamScheduler()
-        pair, total_working_days = teamScheduler.get_todays_working_pair(
+        pair, total_working_days = controller.team_scheduler_svc.get_todays_working_pair(
             INITIAL_DATE, today, TEAM_PAIRS
         )
 
@@ -40,11 +41,11 @@ async def get_team():
 
 @router.get("/{day_date}", status_code=status.HTTP_200_OK)
 async def get_team(
-   day_date: date = Path(..., example=date.today())
+   day_date: date = Path(..., example=date.today()),
+   controller: Controller = Depends(get_controller)
     ):
     try:
-        teamScheduler=TeamScheduler()
-        pair, total_working_days = teamScheduler.get_todays_working_pair(
+        pair, total_working_days = controller.team_scheduler_svc.get_todays_working_pair(
             INITIAL_DATE, day_date, TEAM_PAIRS,
         )
 

@@ -21,7 +21,6 @@ async def get_team(
     controller: Controller = Depends(get_controller),
     ):
     try:
-       
         response = controller.team_scheduler_svc.fetch_team_member_pairs(
             team_id,
             query_date
