@@ -16,7 +16,7 @@ class Database:
         self.config = config
         self._engine = None
         self._setup_engine()
-        self._initialize_schema()
+        #self._initialize_schema()
 
     def _setup_engine(self):
         try:

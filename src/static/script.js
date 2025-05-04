@@ -1,11 +1,11 @@
-async function getSchedule(query_date) {
+async function getSchedule(team_id,query_date) {
   const responseElement = document.getElementById('response');
   const container = document.querySelector('.container');
   responseElement.innerHTML = '<p>Loading...</p>';
   document.body.classList.remove('weekend');
 
   try {
-    const res = await fetch(`https://team-scheduler.onrender.com/team/v1/1/schedule?query_date=${query_date}`);
+    const res = await fetch(`https://team-scheduler.onrender.com/team/v1/${team_id}/schedule?query_date=${query_date}`);
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
     const result = await res.json();
@@ -114,8 +114,13 @@ async function getTeamInfo(teamId) {
 
 function searchTeam() {
   const dateInput = document.getElementById('dateInput').value;
-  if (dateInput) {
-    getSchedule(dateInput);
+  const teamIdInput = document.getElementById('teamIdInput').value.trim();
+  if (teamIdInput){
+    getTeamInfo(teamIdInput);
+    getSchedule(teamIdInput,dateInput);
+  }
+  else if (dateInput) {
+    getSchedule(1,dateInput);
   } else {
     alert('Please select a date');
   }
@@ -140,6 +145,6 @@ function showConfetti() {
 
 window.onload = () => {
   const today = new Date().toISOString().split('T')[0];
-  getSchedule(today);
+  getSchedule(1,today);
   getTeamInfo(1);
 };
