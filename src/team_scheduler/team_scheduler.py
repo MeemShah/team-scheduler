@@ -68,7 +68,7 @@ class TeamScheduler:
         return team_pairs[(team_need_to_work_today - 1) % len(team_pairs)], total_working_days_count
 
 
-    def fetch_team_member_pairs(
+    def _all(
             self, 
             team_id: int,
             query_date: date
@@ -81,3 +81,10 @@ class TeamScheduler:
         )
 
         return team_info
+    
+    def fetch_team_members(
+            self, 
+            team_id: int,
+):
+        team_info =self.team_repo.get_team(team_id)
+        return team_info.team_pairs

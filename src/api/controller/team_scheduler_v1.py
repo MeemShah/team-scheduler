@@ -21,7 +21,7 @@ async def get_team(
     controller: Controller = Depends(get_controller),
     ):
     try:
-        response = controller.team_scheduler_svc.fetch_team_member_pairs(
+        response = controller.team_scheduler_svc._all(
             team_id,
             query_date
         )
@@ -29,7 +29,6 @@ async def get_team(
         return send_data("Team retrieved Successful", {
             "team_name":response.team_name,
             "team_lead":response.team_lead,
-            "members":response.team_pairs,
             "scheduled_to_work":response.todays_working_pair,
             "total_working_days": response.total_working_days
         })
@@ -42,3 +41,25 @@ async def get_team(
         logging.error("Unexpected error occurred", exc_info=True)
         return send_error("Something went wrong ! we are working on it ;D",None,200)
     
+
+@router.get("/{team_id}/members")
+async def get_team(
+    team_id: int,
+    controller: Controller = Depends(get_controller),
+    ):
+    try:
+        response = controller.team_scheduler_svc.fetch_team_members(
+            team_id,
+        )
+
+        return send_data("Team retrieved Successful", {
+            "members":response
+        })
+
+
+    except WeekendError:
+        return send_data("Happy Weekend")
+
+    except Exception as e:
+        logging.error("Unexpected error occurred", exc_info=True)
+        return send_error("Something went wrong ! we are working on it ;D",None,200)
