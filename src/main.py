@@ -3,12 +3,24 @@ from .logger.logger import configure_logger, LogLevels
 from .api.routes import register_routes
 from .config.config import Config
 from .api.middlewares.cors import EnableCors
+from .database.db import Database
+from .repository.team_repo import TeamRepo
+from .repository.team_member_repo import TeamMemberRepo
+from .api.controller.startup import configure_startup
+
 config = Config()
+
+db= Database(config.db_config)
+
+team_repo= TeamRepo(db)
+team_member_repo= TeamMemberRepo(db)
+
 
 configure_logger(LogLevels.info)
 
 app = FastAPI()
 app = EnableCors(app)
+configure_startup(app)
 
 register_routes(app)
 

@@ -2,7 +2,7 @@ import unittest
 from datetime import date
 from ..dto.config import INITIAL_DATE, TEAM_PAIRS, PAIR_SEQUENCE
 from ..exceptions import WeekendError, InitialDateAfterTodayError
-from ..team_scheduler.service import TeamScheduler
+from .team_scheduler import TeamScheduler
 
 class TestGetTodaysWorkingPair(unittest.TestCase):
     def setUp(self):

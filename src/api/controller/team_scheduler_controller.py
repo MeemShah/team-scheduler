@@ -1,10 +1,10 @@
 from fastapi import APIRouter, status, Request
 from fastapi import Path
 from datetime import date
-from ...team_scheduler.service import TeamScheduler
+from ...team_scheduler.team_scheduler import TeamScheduler
 from ..utiils.send_data import send_data
 from ..utiils.send_error import send_error
-from ...dto.config import INITIAL_DATE,TEAM_PAIRS,PAIR_SEQUENCE
+from ...dto.config import INITIAL_DATE,TEAM_PAIRS
 from ...exceptions import InitialDateAfterTodayError,WeekendError,InternalServerError
 import logging
 
@@ -19,7 +19,7 @@ async def get_team():
         today = date.today()
         teamScheduler=TeamScheduler()
         pair, total_working_days = teamScheduler.get_todays_working_pair(
-            INITIAL_DATE, today, TEAM_PAIRS, PAIR_SEQUENCE
+            INITIAL_DATE, today, TEAM_PAIRS
         )
 
         return send_data("Team retrieved Successful", {
@@ -45,7 +45,7 @@ async def get_team(
     try:
         teamScheduler=TeamScheduler()
         pair, total_working_days = teamScheduler.get_todays_working_pair(
-            INITIAL_DATE, day_date, TEAM_PAIRS, PAIR_SEQUENCE
+            INITIAL_DATE, day_date, TEAM_PAIRS,
         )
 
         return send_data("Team retrieved Successful", {

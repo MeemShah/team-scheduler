@@ -3,3 +3,6 @@ uvicorn
 jinja2
 python-dotenv
 pytest
+sqlalchemy
+sqlmodel
+psycopg2-binary
