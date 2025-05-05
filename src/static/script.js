@@ -1,4 +1,4 @@
-async function getSchedule(team_id,query_date) {
+async function getSchedule(team_id, query_date) {
   const responseElement = document.getElementById('response');
   const container = document.querySelector('.container');
   responseElement.innerHTML = '<p>Loading...</p>';
@@ -112,19 +112,31 @@ async function getTeamInfo(teamId) {
   }
 }
 
+
 function searchTeam() {
-  const dateInput = document.getElementById('dateInput').value;
+  let dateInput = document.getElementById('dateInput').value;
   const teamIdInput = document.getElementById('teamIdInput').value.trim();
-  if (teamIdInput){
+  const searchTerm = document.getElementById('searchTermInput')?.value.trim() || '';
+
+  // Save to localStorage
+  if (teamIdInput) localStorage.setItem('lastTeamId', teamIdInput);
+  if (dateInput) localStorage.setItem('lastDateInput', dateInput);
+  localStorage.setItem('lastSearchTerm', searchTerm);
+
+  if (teamIdInput) {
     getTeamInfo(teamIdInput);
-    getSchedule(teamIdInput,dateInput);
-  }
-  else if (dateInput) {
-    getSchedule(1,dateInput);
+    if (!dateInput) {
+      dateInput = new Date().toISOString().split('T')[0];
+    }
+    getSchedule(teamIdInput, dateInput);
+  } else if (dateInput) {
+    const lastTeamId = localStorage.getItem('lastTeamId') || '1';
+    getSchedule(lastTeamId, dateInput);
   } else {
     alert('Please select a date');
   }
 }
+
 
 function showConfetti() {
   const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1', '#5f27cd', '#ff9f43'];
@@ -143,8 +155,18 @@ function showConfetti() {
   }
 }
 
+
 window.onload = () => {
-  const today = new Date().toISOString().split('T')[0];
-  getSchedule(1,today);
-  getTeamInfo(1);
+  const savedTeamId = localStorage.getItem('lastTeamId') || '1';
+  const savedDate = localStorage.getItem('lastDateInput') || new Date().toISOString().split('T')[0];
+  const savedSearchTerm = localStorage.getItem('lastSearchTerm') || '';
+
+  document.getElementById('teamIdInput').value = savedTeamId;
+  document.getElementById('dateInput').value = savedDate;
+  if (document.getElementById('searchTermInput')) {
+    document.getElementById('searchTermInput').value = savedSearchTerm;
+  }
+
+  getSchedule(savedTeamId, savedDate);
+  getTeamInfo(savedTeamId);
 };

@@ -1,6 +1,6 @@
 from datetime import datetime, date
-from ..exceptions import WeekendError,InitialDateAfterQueryDateError
-import logging
+from ..exceptions import WeekendException,InitialDateAfterQueryDateError,NotFoundError,InternalServerError
+from ..logger.logger import logging
 from ..database.db import Database
 from ..dto.days import days
 from ..repository.team_repo import TeamRepo
@@ -24,13 +24,12 @@ class TeamScheduler:
 ):
         if initial_date > query_date:
             logging.error(f"Initial Date After Query  Date Error: Inittial Date {initial_date}, query_date {query_date}")
-            raise InitialDateAfterQueryDateError(initial_date,query_date)
+            raise InitialDateAfterQueryDateError()
         
         today_name = query_date.strftime("%A")
 
         if self.days[today_name] > 4:
-            logging.info("Happy Weekend")
-            raise WeekendError()
+            raise WeekendException()
 
         initial_weekday_name = initial_date.strftime("%A")
         day_difference = (query_date - initial_date).days + 1
@@ -68,16 +67,61 @@ class TeamScheduler:
         return team_pairs[(team_need_to_work_today - 1) % len(team_pairs)], total_working_days_count
 
 
-    def get_schedule(self, team_id: int,query_date: date):
-        team_info =self.team_repo.get_team(team_id)
-        todays_working_pair,total_working_days=self._get_working_pair(
-            team_info.initial_start_date,
-            query_date,
-            team_info.team_pairs
-        )
+    def get_schedule(self, team_id: int, query_date: date):
+        try:
+            team_info = self.team_repo.get_team(team_id)
 
-        return todays_working_pair,total_working_days
+            if not team_info:
+                raise NotFoundError()
+
+            try:
+                todays_working_pair, total_working_days = self._get_working_pair(
+                    team_info.initial_start_date,
+                    query_date,
+                    team_info.team_pairs
+                )
+
+                return todays_working_pair, total_working_days
+
+            except InitialDateAfterQueryDateError as e:
+                logging.error(f"Initial Date After Query Date Error: Initial Date {team_info.initial_start_date}, Query Date {query_date}")
+                raise InitialDateAfterQueryDateError()
+
+            except WeekendException:
+                logging.warning(f"Query date {query_date} is a weekend.")
+                raise WeekendException()
+
+            except Exception as e:
+                logging.error(f"Unexpected error in _get_working_pair: {e}")
+                raise InternalServerError()
+        except WeekendException :
+            raise WeekendException()
+
+        except InitialDateAfterQueryDateError :
+            raise InitialDateAfterQueryDateError()
+
+        except NotFoundError as e:
+            logging.warning(f"Team with ID {team_id} not found: {e}")
+            raise NotFoundError(f"Team with ID {team_id} not found.")
+
+        except Exception as e:
+            logging.error(f"Unexpected error while fetching schedule for team {team_id}: {e}")
+            raise InternalServerError() 
+
+
+
+
     
     def get_team(self, team_id: int):
-        return self.team_repo.get_team(team_id)
+        try: 
+            team_info = self.team_repo.get_team(team_id)
+            if not team_info:
+                raise NotFoundError() 
+
+            return team_info
+        except NotFoundError:
+            raise
+        except Exception as e:
+            logging.error(f"Error fetching team with ID {team_id}: {e}", exc_info=True)
+            raise InternalServerError()
 
