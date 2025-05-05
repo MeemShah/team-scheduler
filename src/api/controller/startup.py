@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from src.api.controller.controller import Controller
-from src.team_scheduler.team_scheduler import TeamScheduler
+from src.team_scheduler_svc.team_scheduler import TeamScheduler
 from ...config.config import Config
 from ...database.db import Database
 from ...repository.team_repo import TeamRepo

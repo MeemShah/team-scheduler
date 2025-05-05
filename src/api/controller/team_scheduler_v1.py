@@ -3,7 +3,7 @@ from datetime import date
 from ..utiils.send_data import send_data
 from ..utiils.send_error import send_error
 from ...dto.config import INITIAL_DATE,TEAM_PAIRS,PAIR_SEQUENCE
-from ...exceptions import WeekendError
+from ...exceptions import WeekendException,InternalServerError,NotFoundError,InitialDateAfterQueryDateError
 import logging
 from .startup import get_controller
 from .controller import Controller
@@ -28,8 +28,13 @@ async def get_team(
             "scheduled_to_work":scheduled_to_work,
             "total_working_days": total_working_day
         })
+    except InitialDateAfterQueryDateError:
+        return send_error("Initial date is after query date",None)
 
-    except WeekendError:
+    except NotFoundError:
+        return send_error("Team not found",None,404)
+
+    except WeekendException:
         return send_data("Happy Weekend")
 
     except Exception as e:
@@ -41,22 +46,24 @@ async def get_team(
 async def get_team(
     team_id: int,
     controller: Controller = Depends(get_controller),
-    ):
+):
     try:
-        response = controller.team_scheduler_svc.get_team(
-            team_id,
-        )
+        response = controller.team_scheduler_svc.get_team(team_id)
 
-        return send_data("Team retrieved Successful", {
-            "name":response.team_name,
+        return send_data("Team retrieved successfully", {
+            "name": response.team_name,
             "lead": response.team_lead,
             "initial_start_date": str(response.initial_start_date),
             "pairs": response.team_pairs
         })
 
-    except WeekendError:
+    except NotFoundError:
+        return send_error("Team not found",None,404)
+
+    except WeekendException:
         return send_data("Happy Weekend")
 
     except Exception as e:
-        logging.error("Unexpected error occurred", exc_info=True)
-        return send_error("Something went wrong ! we are working on it ;D",None,200)
+        logging.error("Unexpected error occurred while fetching team details", exc_info=True)
+        return send_error("Something went wrong! We are working on it ;D", None, 500)
+
