@@ -3,8 +3,11 @@ from sqlmodel import Session
 from sqlalchemy.orm import selectinload
 from ..database.db import Database
 from ..entites.teams import Teams
-from ..dto.team_info_res import TeamInfoResponse
+from ..dto.teams import TeamInfoResponse, TeamCreationRequest,GetTeamsReq
 from ..logger.logger import logging
+from ..exceptions import InternalServerError
+from typing import List
+from .query_builder import TeamQueryBuilder
 
 class TeamRepo:
     def __init__(self, db: Database):
@@ -34,3 +37,39 @@ class TeamRepo:
         except Exception as e:
             logging.error(f"Error fetching team with ID {team_id}: {e}")
             return None
+    
+    def create(self, req: TeamCreationRequest) -> Teams:
+        try:
+            with self._db.get_session() as session:
+                new_team = Teams(
+                    team_name=req.team_name,
+                    team_lead=req.team_lead,
+                    initial_start_date=req.initial_start_date
+                )
+                session.add(new_team)
+                session.commit()
+                session.refresh(new_team)
+
+                return new_team
+            
+        except Exception as e:
+            logging.error(f"Failed to create team. Error: {e}")
+            raise InternalServerError()
+    
+    def get_teams(self, req: GetTeamsReq) -> List[TeamInfoResponse]:
+            try:
+                with self._db.get_session() as session:
+                    query = (
+                        TeamQueryBuilder(session)
+                        .filter_by_name(req.team_name)
+                        .filter_by_lead(req.team_lead)
+                        .sort_by(req.sortBy, req.sortOrder)
+                        .paginate(req.page, req.limit)
+                    )
+                    teams= query.exec()
+                    return [TeamInfoResponse.from_orm(team).dict(exclude={"team_pairs"}) for team in teams]
+
+            except Exception as e:
+                logging.error(f"Failed to fetch teams: {e}")
+                raise InternalServerError()
+            

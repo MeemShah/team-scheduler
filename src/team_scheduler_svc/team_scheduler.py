@@ -3,6 +3,7 @@ from ..exceptions import WeekendException,InitialDateAfterQueryDateError,NotFoun
 from ..logger.logger import logging
 from ..database.db import Database
 from ..dto.days import days
+from ..dto.teams import TeamCreationRequest,GetTeamsReq,TeamInfoResponse,AddPairRequest
 from ..repository.team_repo import TeamRepo
 from ..repository.team_member_repo import TeamMemberRepo
 
@@ -107,10 +108,6 @@ class TeamScheduler:
         except Exception as e:
             logging.error(f"Unexpected error while fetching schedule for team {team_id}: {e}")
             raise InternalServerError() 
-
-
-
-
     
     def get_team(self, team_id: int):
         try: 
@@ -124,4 +121,38 @@ class TeamScheduler:
         except Exception as e:
             logging.error(f"Error fetching team with ID {team_id}: {e}", exc_info=True)
             raise InternalServerError()
+    
+    def create_team(self, team_name: str, team_lead: str, initial_start_date: date):
+        try:
+            _= self.team_repo.create(TeamCreationRequest(
+                team_name=team_name,
+                team_lead=team_lead,
+                initial_start_date=initial_start_date
+            ))
 
+            return None
+        
+        except Exception:
+            raise InternalServerError()
+        
+    def get_teams(self, req: GetTeamsReq):
+        try:
+            teams = self.team_repo.get_teams(req)
+            return teams
+        
+        except Exception as e:
+            logging.error(f"Failed to fetch teams: {e}")
+            raise InternalServerError()
+        
+    def add_team_pair(self, member_1: str, member_2: str, team_id: int):
+        try:
+            _= self.team_member_repo.add_pair(AddPairRequest(
+                member_1=member_1,
+                member_2=member_2,
+                team_id=team_id
+            ))
+
+            return None
+        
+        except Exception:
+            raise InternalServerError()
