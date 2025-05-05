@@ -8,7 +8,6 @@ from ..repository.team_repo import TeamRepo
 from ..repository.team_member_repo import TeamMemberRepo
 
 
-
 class TeamScheduler:
     def __init__(self, db: Database, team_repo:TeamRepo,team_member_repo: TeamMemberRepo):
         self.Db= db
@@ -22,7 +21,7 @@ class TeamScheduler:
             initial_date: date, 
             query_date: date, 
             team_pairs: list[tuple[str, str]], 
-):
+    ):
         if initial_date > query_date:
             logging.error(f"Initial Date After Query  Date Error: Inittial Date {initial_date}, query_date {query_date}")
             raise InitialDateAfterQueryDateError()
@@ -154,5 +153,6 @@ class TeamScheduler:
 
             return None
         
-        except Exception:
+        except Exception as e:
+            logging.error(f"Error while adding pairs: {e}", exc_info=True)
             raise InternalServerError()

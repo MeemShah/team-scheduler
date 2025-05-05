@@ -73,7 +73,6 @@ async def add_team_pairs(
     controller: Controller = Depends(get_controller),                      
 ):
     try:
-        # Call the service to create the team pair
         controller.team_scheduler_svc.add_team_pair(member_1, member_2, teamId)
         return send_data("Team Created Successfully")
     
