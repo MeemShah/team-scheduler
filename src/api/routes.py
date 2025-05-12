@@ -5,9 +5,13 @@ from .controller.team_scheduler_v1 import router as routes_v1
 from .controller.admin_panel_v1 import router as admin_panel_v1
 
 def register_routes(app: FastAPI):
-    @app.get("/", response_class=FileResponse)
+    @app.get("/index.html", response_class=FileResponse)
     def read_root():
         return FileResponse("src/static/index.html")
+    
+    @app.get("/dashboard.html")
+    async def serve_dashboard():
+        return FileResponse("src/static/dashboard.html")
     
     @app.head("/")
     def head_root():

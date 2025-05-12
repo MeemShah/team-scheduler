@@ -6,7 +6,7 @@ async function getSchedule(team_id, query_date) {
 
   try {
     const res = await fetch(`https://team-scheduler.onrender.com/team/v1/${team_id}/schedule?query_date=${query_date}`);
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    if (!res.ok) throw new Error(`OOPS!!! Team Id Not Exist`);
 
     const result = await res.json();
     const { data } = result;
@@ -23,7 +23,6 @@ async function getSchedule(team_id, query_date) {
       htmlContent = `
         <div class="weekend-card">
           <p><strong>Happy weekend! 🎉 🎉 🎉</strong></p>
-          <img src="/static/relax.jpg" alt="Weekend Vibes" class="weekend-img" />
         </div>
       `;
     } else {
@@ -63,7 +62,7 @@ async function getTeamInfo(teamId) {
 
   try {
     const res = await fetch(`https://team-scheduler.onrender.com/team/v1/${teamId}/details`);
-    if (!res.ok) throw new Error(`Invalid Team Id! status: ${res.status}`);
+    if (!res.ok) throw new Error(`OOPS!!! Team Id Not Exist`);
 
     const result = await res.json();
     const { data } = result;
@@ -118,7 +117,6 @@ function searchTeam() {
   const teamIdInput = document.getElementById('teamIdInput').value.trim();
   const searchTerm = document.getElementById('searchTermInput')?.value.trim() || '';
 
-  // Save to localStorage
   if (teamIdInput) localStorage.setItem('lastTeamId', teamIdInput);
   if (dateInput) localStorage.setItem('lastDateInput', dateInput);
   localStorage.setItem('lastSearchTerm', searchTerm);

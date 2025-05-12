@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Team Management Dashboard</title>
+  <link rel="stylesheet" href="/static/dashboard.css" />
+</head>
+<body>
+
+  <nav>
+    <h1>Team Dashboard</h1>
+    <div>
+      <a href="index.html" class="nav-link">Home</a>
+      <button onclick="toggleForm('createTeamForm')">Create Team</button>
+      <button onclick="toggleForm('getTeamsForm')">Get Teams</button>
+      <button onclick="toggleForm('addPairsForm')">Add Team Pairs</button>
+    </div>
+  </nav>
+
+  <div class="dashboard">
+    <div id="welcomeMessage">
+      <p>Welcome to the Dashboard Page</p>
+    </div>
+
+    <form id="createTeamForm" onsubmit="submitCreateTeam(event)">
+      <h3>Create Team</h3>
+      <input type="text" name="teamName" placeholder="Team Name" required />
+      <input type="text" name="teamLead" placeholder="Team Lead" required />
+      <input type="date" name="initialStartingDate" required />
+      <button type="submit">Submit</button>
+    </form>
+
+    <form id="getTeamsForm" onsubmit="submitGetTeams(event)">
+      <h3>Filter Teams</h3>
+      <input type="text" name="team_name" placeholder="Team Name (optional)" />
+      <input type="text" name="team_lead" placeholder="Team Lead (optional)" />
+      <input type="number" name="page" value="1" />
+      <input type="number" name="limit" value="10" />
+      <select name="sort_by">
+        <option value="id">Sort By: ID</option>
+        <option value="teamName">Team Name</option>
+      </select>
+      <select name="sort_order">
+        <option value="DESC">DESC</option>
+        <option value="ASC">ASC</option>
+      </select>
+      <button type="submit">Search</button>
+    </form>
+
+    <form id="addPairsForm" onsubmit="submitAddPairs(event)">
+      <h3>Add Team Pairs</h3>
+      <input type="number" name="teamId" placeholder="Team ID" required />
+      <input type="text" name="member_1" placeholder="Member 1" required />
+      <input type="text" name="member_2" placeholder="Member 2" required />
+      <button type="submit">Add Pair</button>
+    </form>
+
+    <div id="teamsTable" class="response-table">
+      <p>Loading teams...</p>
+    </div>
+  </div>
+
+  <script src="/static/dashboard.js"></script>
+  <script>
+    setTimeout(function() {
+      document.getElementById("welcomeMessage").style.display = 'none';
+    }, 5000);
+  </script>
+</body>
+</html>
