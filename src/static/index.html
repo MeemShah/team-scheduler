@@ -3,17 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/styles.css" />
   <title>Bkash Team Schedule</title>
 </head>
 <body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <h1>Team Schedule</h1>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+    </div>
+  </nav>
+
   <div class="search-box">
     <label for="dateInput">Date:</label>
     <input type="date" id="dateInput" />
-
     <label for="teamIdInput">Team ID:</label>
     <input type="text" id="teamIdInput" placeholder="Enter Team ID" />
-
     <button onclick="searchTeam()">Search</button>
   </div>
 
