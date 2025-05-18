@@ -28,8 +28,24 @@
       <input type="text" name="teamName" placeholder="Team Name" required />
       <input type="text" name="teamLead" placeholder="Team Lead" required />
       <input type="date" name="initialStartingDate" required />
+  
+      <fieldset class="checklist-container">
+        <legend>Select Working Days</legend>
+        
+        <div><label><input type="checkbox" name="sunday" value="Sunday" checked> Sunday</label></div>
+        <div><label><input type="checkbox" name="monday" value="Monday" checked> Monday</label></div>
+        <div><label><input type="checkbox" name="tuesday" value="Tuesday" checked> Tuesday</label></div>
+        <div><label><input type="checkbox" name="wednesday" value="Wednesday" checked> Wednesday</label></div>
+        <div><label><input type="checkbox" name="thursday" value="Thursday" checked> Thursday</label></div>
+        <div><label><input type="checkbox" name="friday" value="Friday" checked> Friday</label></div>
+        <div><label><input type="checkbox" name="saturday" value="Saturday" checked> Saturday</label></div>
+      
+      </fieldset>
+      
+  
       <button type="submit">Submit</button>
     </form>
+    
 
     <form id="getTeamsForm" onsubmit="submitGetTeams(event)">
       <h3>Filter Teams</h3>

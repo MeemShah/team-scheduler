@@ -7,7 +7,7 @@ class TeamInfoResponse(BaseModel):
     id: Optional[int]=None
     team_name: str
     team_lead: str
-    working_days: List[str]
+    working_days: Optional[List[str]] = None
     initial_start_date: date
     team_pairs: Optional[List[Tuple[str, str]]] = None
 

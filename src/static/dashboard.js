@@ -88,14 +88,49 @@ function toggleForm(formId) {
   
   async function submitCreateTeam(e) {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const res = await fetch("/admin/v1/team/", {
-      method: "POST",
-      body: formData
+    const form = document.getElementById("createTeamForm");
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked');
+  
+    const selectedDays = [];
+
+    checkboxes.forEach(checkbox => {
+      selectedDays.push(checkbox.value);
     });
-    const msg = await res.text();
-    alert(msg);
+    
+
+    const teamName = form.querySelector('[name="teamName"]').value;
+    const teamLead = form.querySelector('[name="teamLead"]').value;
+    const initialStartingDate = form.querySelector('[name="initialStartingDate"]').value;
+
+    const payload = {
+      teamName,
+      teamLead,
+      working_days:selectedDays,
+      initialStartingDate
+    };
+  
+    try {
+      const res = await fetch("/admin/v1/team/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+  
+      const result = await res.json();
+      if (!res.ok) {
+        alert("Error: " + (result.message || res.statusText));
+      } else {
+        alert(result.message || "Team created successfully!");
+      }
+    } catch (err) {
+      alert("Request failed: " + err.message);
+    }
   }
+  
+  
   
   async function submitAddPairs(e) {
     e.preventDefault();

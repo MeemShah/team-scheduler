@@ -6,10 +6,10 @@ from ...dto.config import INITIAL_DATE,TEAM_PAIRS,PAIR_SEQUENCE
 from ...exceptions import WeekendException,InternalServerError,NotFoundError,InitialDateAfterQueryDateError
 from .startup import get_controller
 from .controller import Controller
-from ...dto.teams import GetTeamsReq as get_teams_req
+from ...dto.teams import GetTeamsReq as GetTeamsReq
 from ...logger.logger import logging as logger
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 from typing import Annotated,List
 
 class CreateTeamReq(BaseModel):
@@ -19,12 +19,13 @@ class CreateTeamReq(BaseModel):
     initialStartingDate: date
 
 class GetTeams(BaseModel):
-    team_name: Optional[str] = None
-    team_lead: Optional[str] = None
+    teamName: Optional[str] = None
+    teamLead: Optional[str] = None
     page: int =1
     limit: int =10
-    sort_by: str = "id"
-    sort_order: str = "DESC"
+    sortBy: str = Field("id", alias="sortBy")
+    sortOrder: str = Field("DESC", alias="sortOrder")
+
 
 
 router = APIRouter(
@@ -51,13 +52,13 @@ async def get_teams(
     controller: Controller = Depends(get_controller),                      
 ):
     try:
-        response = controller.team_scheduler_svc.get_teams(get_teams_req(
-            team_name=req.team_name,
-            team_lead=req.team_lead,
+        response = controller.team_scheduler_svc.get_teams(GetTeamsReq(
+            team_name=req.teamName,
+            team_lead=req.teamLead,
             page=req.page,
             limit=req.limit,
-            sortBy=req.sort_by,
-            sortOrder=req.sort_order
+            sortBy=req.sortBy,
+            sortOrder=req.sortOrder
         ))
         return send_data("Successfully fetch items", response)
     

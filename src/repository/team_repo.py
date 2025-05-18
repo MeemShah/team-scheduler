@@ -64,19 +64,33 @@ class TeamRepo:
             raise InternalServerError()
     
     def get_teams(self, req: GetTeamsReq) -> List[TeamInfoResponse]:
-            try:
-                with self._db.get_session() as session:
-                    query = (
-                        TeamQueryBuilder(session)
-                        .filter_by_name(req.team_name)
-                        .filter_by_lead(req.team_lead)
-                        .sort_by(req.sortBy, req.sortOrder)
-                        .paginate(req.page, req.limit)
-                    )
-                    teams= query.exec()
-                    return [TeamInfoResponse.from_orm(team).dict(exclude={"team_pairs"}) for team in teams]
+        try:
+            with self._db.get_session() as session:
+                qb = (
+                    TeamQueryBuilder(session)
+                    .filter_by_name(req.team_name)
+                    .filter_by_lead(req.team_lead)
+                    .sort_by(req.sortBy, req.sortOrder)
+                    .paginate(req.page, req.limit)
+                )
+                teams = qb.exec()
 
-            except Exception as e:
-                logging.error(f"Failed to fetch teams: {e}")
-                raise InternalServerError()
+                result: List[TeamInfoResponse] = []
+                for team in teams:
+                    result.append(
+                        TeamInfoResponse(
+                            id=team.id,
+                            team_name=team.team_name,
+                            team_lead=team.team_lead,
+                            working_days=None,
+                            initial_start_date=team.initial_start_date,
+                            team_pairs=None
+                        )
+                    )
+
+                return result
+
+        except Exception as e:
+            logging.error(f"Failed to fetch teams: {e}", exc_info=True)
+            raise InternalServerError()
             
