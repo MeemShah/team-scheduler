@@ -98,7 +98,9 @@ class TeamScheduler:
 
             try:
                 self._validate_dates(team_info.initial_start_date,query_date)
-                self._is_weekend(team_info.working_days,query_date)
+                if self._is_weekend(team_info.working_days,query_date):
+                    raise WeekendException()
+                
                 total_working_days = self._calculate_total_working_days_count( team_info.initial_start_date, query_date,team_info.working_days)
                 team = self._determine_working_pair(total_working_days,   team_info.team_pairs)
 
