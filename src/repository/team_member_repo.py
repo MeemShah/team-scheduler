@@ -1,7 +1,7 @@
 from sqlmodel import select
 from sqlmodel import Session
 from sqlalchemy.orm import selectinload
-from ..database.db import Database
+from .db import Database
 from ..entites.teams import TeamMemberPair
 from ..dto.teams import AddPairRequest
 from ..logger.logger import logging 
@@ -29,7 +29,6 @@ class TeamMemberRepo:
                 session.commit()
                 session.refresh(new_pair)
 
-                logging.info(f"New team pair created: {new_pair}")
                 return new_pair
 
         except NotFoundError:

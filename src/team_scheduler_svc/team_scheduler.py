@@ -1,7 +1,7 @@
 from datetime import datetime, date,timedelta
 from ..exceptions import WeekendException,InitialDateAfterQueryDateError,NotFoundError,InternalServerError,EmptyTeamListError
 from ..logger.logger import logging
-from ..database.db import Database
+from ..repository.db import Database
 from ..dto.days import DayToVal,ValToDay
 from ..dto.teams import TeamCreationRequest,GetTeamsReq,TeamInfoResponse,AddPairRequest
 from ..repository.team_repo import TeamRepo
