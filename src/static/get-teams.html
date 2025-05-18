@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="/static/get-teams.css" />
+
+  <title>Get Teams</title>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <h1>Get Teams</h1>
+      <a href="index.html" class="nav-link">Home</a>
+    </div>
+  </nav>
+
+  <form id="getTeamsForm" onsubmit="submitGetTeams(event)">
+    <h3>Filter Teams</h3>
+    <input type="text" name="team_name" placeholder="Team Name (optional)" />
+    <input type="text" name="team_lead" placeholder="Team Lead (optional)" />
+    <input type="number" name="page" value="1" />
+    <input type="number" name="limit" value="10" />
+    <select name="sort_by">
+      <option value="id">Sort By: ID</option>
+      <option value="teamName">Team Name</option>
+    </select>
+    <select name="sort_order">
+      <option value="DESC">DESC</option>
+      <option value="ASC">ASC</option>
+    </select>
+    <button type="submit">Search</button>
+  </form>
+
+  <div id="teamsTable" class="response-table">
+    <p>Loading teams...</p>
+  </div>
+
+  <script src="/static/dashboard.js"></script>
+</body>
+</html>

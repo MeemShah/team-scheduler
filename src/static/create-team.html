@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="/static/createTeam.css" />
+  <title>Create Team</title>
+</head>
+<body>
+
+    <nav class="navbar custom-navbar">
+        <div class="nav-container custom-nav-container">
+          <h1 class="nav-title">Create Team</h1>
+          <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+          </div>
+        </div>
+      </nav>
+      
+
+  <form id="createTeamForm" onsubmit="submitCreateTeam(event)">
+    <h3>Create Team</h3>
+    <input type="text" name="teamName" placeholder="Team Name" required />
+    <input type="text" name="teamLead" placeholder="Team Lead" required />
+    <input type="date" name="initialStartingDate" required />
+
+    <fieldset class="checklist-container">
+      <legend>Select Working Days</legend>
+      <div><label><input type="checkbox" name="sunday" value="Sunday" checked> Sunday</label></div>
+      <div><label><input type="checkbox" name="monday" value="Monday" checked> Monday</label></div>
+      <div><label><input type="checkbox" name="tuesday" value="Tuesday" checked> Tuesday</label></div>
+      <div><label><input type="checkbox" name="wednesday" value="Wednesday" checked> Wednesday</label></div>
+      <div><label><input type="checkbox" name="thursday" value="Thursday" checked> Thursday</label></div>
+      <div><label><input type="checkbox" name="friday" value="Friday" checked> Friday</label></div>
+      <div><label><input type="checkbox" name="saturday" value="Saturday" checked> Saturday</label></div>
+    </fieldset>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <script src="/static/dashboard.js"></script>
+</body>
+</html>
