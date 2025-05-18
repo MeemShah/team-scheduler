@@ -9,9 +9,21 @@ def register_routes(app: FastAPI):
     def read_root():
         return FileResponse("src/static/index.html")
     
-    @app.get("/dashboard.html")
+    # @app.get("/dashboard.html")
+    # async def serve_dashboard():
+    #     return FileResponse("src/static/dashboard.html")
+    
+    @app.get("/create-team.html")
     async def serve_dashboard():
-        return FileResponse("src/static/dashboard.html")
+        return FileResponse("src/static/create-team.html")
+    
+    @app.get("/get-teams.html")
+    async def serve_dashboard():
+        return FileResponse("src/static/get-teams.html")
+    
+    @app.get("/add-pairs.html")
+    async def serve_dashboard():
+        return FileResponse("src/static/add-pairs.html")
     
     @app.head("/")
     def head_root():

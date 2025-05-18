@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="/static/add-pair.css" />
+  <title>Add Team Pairs</title>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <h1>Add Team Pairs</h1>
+      <a href="index.html" class="nav-link">Home</a>
+    </div>
+  </nav>
+
+  <form id="addPairsForm" onsubmit="submitAddPairs(event)">
+    <h3>Add Team Pairs</h3>
+    <input type="number" name="teamId" placeholder="Team ID" required />
+    <input type="text" name="member_1" placeholder="Member 1" required />
+    <input type="text" name="member_2" placeholder="Member 2" required />
+    <button type="submit">Add Pair</button>
+  </form>
+
+  <script src="/static/dashboard.js"></script>
+</body>
+</html>
