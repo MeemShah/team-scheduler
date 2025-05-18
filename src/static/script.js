@@ -122,6 +122,8 @@ function searchTeam() {
   if (dateInput) localStorage.setItem('lastDateInput', dateInput);
   localStorage.setItem('lastSearchTerm', searchTerm);
 
+  fetchWeeklySchedule(teamIdInput, dateInput)
+
   if (teamIdInput) {
     getTeamInfo(teamIdInput);
     if (!dateInput) {
