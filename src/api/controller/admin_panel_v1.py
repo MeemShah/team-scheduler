@@ -10,14 +10,15 @@ from ...dto.teams import GetTeamsReq as get_teams_req
 from ...logger.logger import logging as logger
 from typing import Optional
 from pydantic import BaseModel
-from typing import Annotated
+from typing import Annotated,List
 
 class CreateTeamReq(BaseModel):
     teamName: str
     teamLead: str
+    working_days: List[str] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     initialStartingDate: date
 
-class GetTeamsReq(BaseModel):
+class GetTeams(BaseModel):
     team_name: Optional[str] = None
     team_lead: Optional[str] = None
     page: int =1
@@ -34,11 +35,11 @@ router = APIRouter(
 
 @router.post("/")
 async def create_team(
-    req: Annotated[CreateTeamReq, Form()],
+    req: CreateTeamReq,
     controller: Controller = Depends(get_controller),                      
 ):
     try:
-        controller.team_scheduler_svc.create_team(req.teamName, req.teamLead, req.initialStartingDate)
+        controller.team_scheduler_svc.create_team(req.teamName, req.teamLead, req.initialStartingDate,req.working_days)
         return send_data("Team Created Succesful")
     
     except Exception:
@@ -46,7 +47,7 @@ async def create_team(
 
 @router.get("/")
 async def get_teams(
-    req: Annotated[GetTeamsReq, Query()],
+    req: Annotated[GetTeams, Query()],
     controller: Controller = Depends(get_controller),                      
 ):
     try:
@@ -75,6 +76,9 @@ async def add_team_pairs(
     try:
         controller.team_scheduler_svc.add_team_pair(member_1, member_2, teamId)
         return send_data("Team Created Successfully")
+    
+    except NotFoundError :
+        return send_error("Team id Not Found")
     
     except Exception as e:
         logger.error(f"Error while adding pairs: {e}", exc_info=True)

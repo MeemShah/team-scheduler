@@ -1,6 +1,7 @@
 from typing import List, Optional
 from datetime import date
 from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import Column, JSON
 
 class Teams(SQLModel, table=True):
     __tablename__ = "teams"
@@ -8,6 +9,10 @@ class Teams(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     team_name: str
     team_lead: str
+    working_days_json: List[str] = Field(
+        sa_column=Column(JSON), 
+        default_factory=list
+    )
     initial_start_date: date
 
     team_member_pairs: List["TeamMemberPair"] = Relationship(back_populates="team")
