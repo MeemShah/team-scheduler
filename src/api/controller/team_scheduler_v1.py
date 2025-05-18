@@ -75,17 +75,15 @@ async def get_team(
 @router.get("/{team_id}/schedule/week")
 async def get_team(
     team_id: int,
+    query_date: date = Query(default_factory=date.today),
     controller: Controller = Depends(get_controller),
 ):
     try:
-        response = controller.team_scheduler_svc.get_team(team_id)
-
-        return send_data("Team retrieved successfully", {
-            "name": response.team_name,
-            "lead": response.team_lead,
-            "initial_start_date": str(response.initial_start_date),
-            "pairs": response.team_pairs
-        })
+        response = controller.team_scheduler_svc.get_weekly_schedule(team_id, query_date)
+        return send_data("Team retrieved successfully",response)
+    
+    except EmptyTeamListError:
+        return send_error("Team List empty, Add team Member first",None)
 
     except NotFoundError:
         return send_error("Team not found",None,404)

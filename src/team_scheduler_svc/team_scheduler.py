@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date,timedelta
 from ..exceptions import WeekendException,InitialDateAfterQueryDateError,NotFoundError,InternalServerError,EmptyTeamListError
 from ..logger.logger import logging
 from ..database.db import Database
@@ -183,4 +183,59 @@ class TeamScheduler:
         
         except Exception as e:
             logging.error(f"Error while adding pairs: {e}", exc_info=True)
+            raise InternalServerError()
+        
+
+    def get_weekly_schedule(self, team_id: int, query_date:date):
+        try: 
+            team_info = self.team_repo.get_team(team_id)
+
+            if not team_info:
+                raise NotFoundError()
+            if not team_info.team_pairs:
+                raise EmptyTeamListError()
+
+            today_name = query_date.strftime("%A")
+            today_index = self.day_to_val[today_name]
+            start_of_week = query_date - timedelta(days=today_index - 1)
+
+            schedule = []
+
+            for i in range(7):
+                day_date = start_of_week + timedelta(days=i)
+                day_name = day_date.strftime("%A")
+
+                if day_name in team_info.working_days:
+                    total_working_days = self._calculate_total_working_days_count(
+                        team_info.initial_start_date,
+                        day_date,
+                        team_info.working_days
+                    )
+
+                    working_pair = self._determine_working_pair(
+                        total_working_days,
+                        team_info.team_pairs
+                    )
+
+                    schedule.append({
+                        "date": day_date.isoformat(),
+                        "day": day_name,
+                        "pair": working_pair
+                    })
+                else:
+                    schedule.append({
+                        "date": day_date.isoformat(),
+                        "day": day_name,
+                        "pair": "Weekend"
+                    })
+
+            return schedule
+        except EmptyTeamListError:
+            raise EmptyTeamListError()
+        
+        except NotFoundError:
+            raise NotFoundError()
+        
+        except Exception as e:
+            logging.error(f"Error generating weekly schedule: {e}", exc_info=True)
             raise InternalServerError()
