@@ -1,70 +1,90 @@
-from datetime import datetime, date
-from ..exceptions import WeekendException,InitialDateAfterQueryDateError,NotFoundError,InternalServerError
+from datetime import datetime, date,timedelta
+from ..exceptions import WeekendException,InitialDateAfterQueryDateError,NotFoundError,InternalServerError,EmptyTeamListError
 from ..logger.logger import logging
-from ..database.db import Database
-from ..dto.days import days
+from ..repository.db import Database
+from ..dto.days import DayToVal,ValToDay
 from ..dto.teams import TeamCreationRequest,GetTeamsReq,TeamInfoResponse,AddPairRequest
 from ..repository.team_repo import TeamRepo
 from ..repository.team_member_repo import TeamMemberRepo
-
+from typing import List, Tuple
+from ..config.config import Config
+from ..dto.teams import AddWorkingDaysRequest
 
 class TeamScheduler:
-    def __init__(self, db: Database, team_repo:TeamRepo,team_member_repo: TeamMemberRepo):
-        self.Db= db
-        self.days = days
+    def __init__(self, cnf:Config, team_repo:TeamRepo,team_member_repo: TeamMemberRepo):
+        self.cnf= cnf
         self.team_repo = team_repo
-        self.team_member_repo =team_member_repo
+        self.team_member_repo = team_member_repo
+        self.day_to_val = DayToVal
+        self.val_to_date= ValToDay
 
-
-    def _get_working_pair(
-            self, 
-            initial_date: date, 
-            query_date: date, 
-            team_pairs: list[tuple[str, str]], 
-    ):
+    def _validate_dates(self, initial_date: date, query_date: date) -> None:
         if initial_date > query_date:
-            logging.error(f"Initial Date After Query  Date Error: Inittial Date {initial_date}, query_date {query_date}")
+            logging.error(
+                f"Initial Date After Query Date Error: Initial Date {initial_date}, Query Date {query_date}"
+            )
             raise InitialDateAfterQueryDateError()
+
+    def _is_weekend(self, working_days: List[str], query_date: date) -> bool:
+        return query_date.strftime("%A") not in working_days
+
+    def _calculate_total_working_days_count(self, initial_date: date, query_date: date, working_days: List[str]) -> int:
+        initial_name = initial_date.strftime("%A")
+        query_name = query_date.strftime("%A")
+        day_diff = (query_date - initial_date).days + 1
+
+        if day_diff < 7:
+            return self._count_within_week(initial_name, day_diff, working_days)
         
-        today_name = query_date.strftime("%A")
+        total_working_days = 0
 
-        if self.days[today_name] > 4:
-            raise WeekendException()
+        start_day_index = self.day_to_val[initial_name]
+        end_day_index = self.day_to_val[query_name]
 
-        initial_weekday_name = initial_date.strftime("%A")
-        day_difference = (query_date - initial_date).days + 1
+        # count working day for the first week
+        for day_num in range(start_day_index, 8):
+            day_name = self.val_to_date[day_num]
+            if day_name in working_days:
+                total_working_days += 1
 
-        if day_difference < 7:
-            current_team_index = 0
-            day = self.days[initial_weekday_name]
-            total_working_days_count = 0
+            day_diff-=1
 
-            for _ in range(day_difference):
-                if day < 5:
-                    total_working_days_count += 1
-                    current_team_index += 1
+        # count working day for the last week
+        for day_num in range(1, end_day_index + 1):
+            day_name = self.val_to_date[day_num]
+            if day_name in working_days:
+                total_working_days += 1
 
-                    if current_team_index >= len(team_pairs):
-                        current_team_index = 0
+            day_diff-=1
 
-                day += 1
-                if day > 7:
-                    day = 1
+        number_of_working_day_in_week= len(working_days)
+        remaining_week=day_diff//7
+        total_working_days+=remaining_week*number_of_working_day_in_week
 
-            return team_pairs[(current_team_index - 1) % len(team_pairs)], total_working_days_count
+        return total_working_days
 
-        days_remaining_in_first_week = 7 - self.days[initial_weekday_name]
-        days_in_last_week = self.days[today_name]
+    def _count_within_week(self, start_day: str, days: int, working_days: List[str]) -> int:
+        count = 0
+        day_idx = self.day_to_val[start_day]
 
-        working_days_in_between_weeks = (day_difference - (days_remaining_in_first_week + days_in_last_week)) // 7
-        total_working_days_count = working_days_in_between_weeks * 4
+        for _ in range(days):
+            day_name = self.val_to_date[day_idx]
+            
+            if day_name in working_days:
+                count += 1
+            
+            day_idx = day_idx % 7 + 1
+        
+        return count
 
-        total_working_days_count += max(0, days_remaining_in_first_week - 2)
-        total_working_days_count += min(days_in_last_week, 4)
+    def _determine_working_pair(
+        self,
+        total_working_days: int,
+        team_pairs: List[Tuple[str, str]],
+    ) -> Tuple[str, str]:
+        index = (total_working_days - 1) % len(team_pairs)
+        return team_pairs[index]
 
-        team_need_to_work_today = total_working_days_count % len(team_pairs)
-
-        return team_pairs[(team_need_to_work_today - 1) % len(team_pairs)], total_working_days_count
 
 
     def get_schedule(self, team_id: int, query_date: date):
@@ -73,15 +93,16 @@ class TeamScheduler:
 
             if not team_info:
                 raise NotFoundError()
+            if not team_info.team_pairs:
+                raise EmptyTeamListError()
 
             try:
-                todays_working_pair, total_working_days = self._get_working_pair(
-                    team_info.initial_start_date,
-                    query_date,
-                    team_info.team_pairs
-                )
+                self._validate_dates(team_info.initial_start_date,query_date)
+                self._is_weekend(team_info.working_days,query_date)
+                total_working_days = self._calculate_total_working_days_count( team_info.initial_start_date, query_date,team_info.working_days)
+                team = self._determine_working_pair(total_working_days,   team_info.team_pairs)
 
-                return todays_working_pair, total_working_days
+                return team, total_working_days
 
             except InitialDateAfterQueryDateError as e:
                 logging.error(f"Initial Date After Query Date Error: Initial Date {team_info.initial_start_date}, Query Date {query_date}")
@@ -94,6 +115,9 @@ class TeamScheduler:
             except Exception as e:
                 logging.error(f"Unexpected error in _get_working_pair: {e}")
                 raise InternalServerError()
+        except EmptyTeamListError:
+            raise EmptyTeamListError()
+        
         except WeekendException :
             raise WeekendException()
 
@@ -121,11 +145,12 @@ class TeamScheduler:
             logging.error(f"Error fetching team with ID {team_id}: {e}", exc_info=True)
             raise InternalServerError()
     
-    def create_team(self, team_name: str, team_lead: str, initial_start_date: date):
+    def create_team(self, team_name: str, team_lead: str, initial_start_date: date, working_days:List[str]):
         try:
             _= self.team_repo.create(TeamCreationRequest(
                 team_name=team_name,
                 team_lead=team_lead,
+                working_days=working_days,
                 initial_start_date=initial_start_date
             ))
 
@@ -153,6 +178,64 @@ class TeamScheduler:
 
             return None
         
+        except NotFoundError:
+            raise NotFoundError()
+        
         except Exception as e:
             logging.error(f"Error while adding pairs: {e}", exc_info=True)
+            raise InternalServerError()
+        
+
+    def get_weekly_schedule(self, team_id: int, query_date:date):
+        try: 
+            team_info = self.team_repo.get_team(team_id)
+
+            if not team_info:
+                raise NotFoundError()
+            if not team_info.team_pairs:
+                raise EmptyTeamListError()
+
+            today_name = query_date.strftime("%A")
+            today_index = self.day_to_val[today_name]
+            start_of_week = query_date - timedelta(days=today_index - 1)
+
+            schedule = []
+
+            for i in range(7):
+                day_date = start_of_week + timedelta(days=i)
+                day_name = day_date.strftime("%A")
+
+                if day_name in team_info.working_days:
+                    total_working_days = self._calculate_total_working_days_count(
+                        team_info.initial_start_date,
+                        day_date,
+                        team_info.working_days
+                    )
+
+                    working_pair = self._determine_working_pair(
+                        total_working_days,
+                        team_info.team_pairs
+                    )
+
+                    schedule.append({
+                        "date": day_date.isoformat(),
+                        "day": day_name,
+                        "pair": working_pair
+                    })
+                else:
+                    schedule.append({
+                        "date": day_date.isoformat(),
+                        "day": day_name,
+                        "pair": "Weekend"
+                    })
+
+            return schedule
+        except EmptyTeamListError:
+            raise EmptyTeamListError()
+        
+        except NotFoundError:
+            raise NotFoundError()
+        
+        except Exception as e:
+            logging.error(f"Error generating weekly schedule: {e}", exc_info=True)
             raise InternalServerError()

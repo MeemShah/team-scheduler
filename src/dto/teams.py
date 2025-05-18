@@ -7,6 +7,7 @@ class TeamInfoResponse(BaseModel):
     id: Optional[int]=None
     team_name: str
     team_lead: str
+    working_days: Optional[List[str]] = None
     initial_start_date: date
     team_pairs: Optional[List[Tuple[str, str]]] = None
 
@@ -16,6 +17,7 @@ class TeamInfoResponse(BaseModel):
 class TeamCreationRequest(BaseModel):
     team_name: str
     team_lead: str
+    working_days: List[str]
     initial_start_date: date
 
 class AddPairRequest(BaseModel):
@@ -30,3 +32,7 @@ class GetTeamsReq(BaseModel):
     limit: int = 10
     sortBy: str = "id"
     sortOrder: str = "DESC"
+
+class AddWorkingDaysRequest(BaseModel):
+    team_id: int 
+    working_days: List[str]

@@ -1,11 +1,7 @@
 import logging
 from contextlib import contextmanager
-from typing import Annotated
-
 from sqlmodel import SQLModel, create_engine, Session
-from fastapi import Depends
 from sqlalchemy.exc import SQLAlchemyError
-
 from ..config.config import DBConfig
 
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +12,7 @@ class Database:
         self.config = config
         self._engine = None
         self._setup_engine()
-        #self._initialize_schema()
+        self._initialize_schema()
 
     def _setup_engine(self):
         try:

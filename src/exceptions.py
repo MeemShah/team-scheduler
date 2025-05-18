@@ -26,3 +26,7 @@ class InternalServerError(HTTPException):
 class NotFoundError(TeamSchedulerError):
     def __init__(self,message: str = "Info Not Found"):
         super().__init__(status_code=404, detail=message)
+
+class EmptyTeamListError(TeamSchedulerError):
+    def __init__(self,message: str = "Team list empty"):
+        super().__init__(status_code=404, detail=message)

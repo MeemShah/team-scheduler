@@ -6,24 +6,26 @@ from ...dto.config import INITIAL_DATE,TEAM_PAIRS,PAIR_SEQUENCE
 from ...exceptions import WeekendException,InternalServerError,NotFoundError,InitialDateAfterQueryDateError
 from .startup import get_controller
 from .controller import Controller
-from ...dto.teams import GetTeamsReq as get_teams_req
+from ...dto.teams import GetTeamsReq as GetTeamsReq
 from ...logger.logger import logging as logger
 from typing import Optional
-from pydantic import BaseModel
-from typing import Annotated
+from pydantic import BaseModel,Field
+from typing import Annotated,List
 
 class CreateTeamReq(BaseModel):
     teamName: str
     teamLead: str
+    working_days: List[str] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     initialStartingDate: date
 
-class GetTeamsReq(BaseModel):
-    team_name: Optional[str] = None
-    team_lead: Optional[str] = None
+class GetTeams(BaseModel):
+    teamName: Optional[str] = None
+    teamLead: Optional[str] = None
     page: int =1
     limit: int =10
-    sort_by: str = "id"
-    sort_order: str = "DESC"
+    sortBy: str = Field("id", alias="sortBy")
+    sortOrder: str = Field("DESC", alias="sortOrder")
+
 
 
 router = APIRouter(
@@ -34,11 +36,11 @@ router = APIRouter(
 
 @router.post("/")
 async def create_team(
-    req: Annotated[CreateTeamReq, Form()],
+    req: CreateTeamReq,
     controller: Controller = Depends(get_controller),                      
 ):
     try:
-        controller.team_scheduler_svc.create_team(req.teamName, req.teamLead, req.initialStartingDate)
+        controller.team_scheduler_svc.create_team(req.teamName, req.teamLead, req.initialStartingDate,req.working_days)
         return send_data("Team Created Succesful")
     
     except Exception:
@@ -46,17 +48,17 @@ async def create_team(
 
 @router.get("/")
 async def get_teams(
-    req: Annotated[GetTeamsReq, Query()],
+    req: Annotated[GetTeams, Query()],
     controller: Controller = Depends(get_controller),                      
 ):
     try:
-        response = controller.team_scheduler_svc.get_teams(get_teams_req(
-            team_name=req.team_name,
-            team_lead=req.team_lead,
+        response = controller.team_scheduler_svc.get_teams(GetTeamsReq(
+            team_name=req.teamName,
+            team_lead=req.teamLead,
             page=req.page,
             limit=req.limit,
-            sortBy=req.sort_by,
-            sortOrder=req.sort_order
+            sortBy=req.sortBy,
+            sortOrder=req.sortOrder
         ))
         return send_data("Successfully fetch items", response)
     
@@ -75,6 +77,9 @@ async def add_team_pairs(
     try:
         controller.team_scheduler_svc.add_team_pair(member_1, member_2, teamId)
         return send_data("Team Created Successfully")
+    
+    except NotFoundError :
+        return send_error("Team id Not Found")
     
     except Exception as e:
         logger.error(f"Error while adding pairs: {e}", exc_info=True)
