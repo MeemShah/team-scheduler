@@ -36,7 +36,12 @@ body {
   
   form {
     display: none;
+    max-width: 65%;
     margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
   
   form.visible {
@@ -46,8 +51,8 @@ body {
   form input, form select, form button {
     margin: 5px;
     padding: 10px;
-    width: 100%;
-    max-width: 300px;
+    width: 50%;
+  
   }
   
   form h3 {
@@ -90,7 +95,7 @@ body {
   
   form#createTeamForm {
     background: #fff;
-    max-width: 400px;
+
     margin: 0 auto;
     padding: 24px;
     border-radius: 12px;
@@ -104,14 +109,16 @@ body {
   
   form#createTeamForm input[type="text"],
   form#createTeamForm input[type="date"] {
-    width: 100%;
+    width: 65%;
     padding: 10px 12px;
     margin-bottom: 16px;
     border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 14px;
   }
-
+.checklist-container{
+  width: 65%;
+}
   .checklist-container label {
     display: block;
     margin: 6px 0;
@@ -123,6 +130,7 @@ body {
     padding: 12px;
     border-radius: 8px;
     margin-bottom: 16px;
+    max-width: 100%;
   }
   
   fieldset legend {
@@ -132,13 +140,10 @@ body {
   
   fieldset label {
     display: block;
-    margin: 6px 0;
     font-size: 14px;
   }
   
-  fieldset input[type="checkbox"] {
-    margin-right: 6px;
-  }
+
   
   button[type="submit"] {
     background-color: #007bff;
@@ -147,7 +152,7 @@ body {
     padding: 10px 16px;
     font-size: 15px;
     border-radius: 8px;
-    width: 100%;
+    width: 65%;
     cursor: pointer;
   }
   
