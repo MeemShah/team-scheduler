@@ -23,8 +23,8 @@ class GetTeams(BaseModel):
     teamLead: Optional[str] = None
     page: int =1
     limit: int =10
-    sortBy: str = Field("id", alias="sortBy")
-    sortOrder: str = Field("DESC", alias="sortOrder")
+    sortBy: str = Field("id", alias="sort_by")
+    sortOrder: str = Field("DESC", alias="sort_order")
 
 
 
@@ -48,7 +48,7 @@ async def create_team(
 
 @router.get("/")
 async def get_teams(
-    req: Annotated[GetTeams, Query()],
+    req: GetTeams = Depends(),
     controller: Controller = Depends(get_controller),                      
 ):
     try:
