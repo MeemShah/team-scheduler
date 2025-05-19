@@ -60,7 +60,6 @@ async function getTeamInfo(teamId) {
   const membersDiv = document.getElementById("team-members");
   membersDiv.innerHTML = '<p>Loading team members...</p>';
 
-
   try {
     const res = await fetch(`/team/v1/${teamId}/details`);
     if (!res.ok) throw new Error(`OOPS!!! Team Id Not Exist`);
@@ -72,7 +71,15 @@ async function getTeamInfo(teamId) {
       const { name, lead, working_days, initial_start_date, pairs } = data;
 
       let tableHTML = `
-        <div class="team-header">
+        <div class="team-header" style="
+          padding: 16px;
+          border: 1px solid #ddd;
+          background-color: #f9f9f9;
+          margin-bottom: 16px;
+          border-radius: 8px;
+          font-family: Arial, sans-serif;
+          max-width: 500px;
+        ">
           <p><strong>Team:</strong> ${name}</p>
           <p><strong>Lead:</strong> ${lead}</p>
           <p><strong>Start Date:</strong> ${initial_start_date}</p>
@@ -81,18 +88,26 @@ async function getTeamInfo(teamId) {
 
       if (pairs && pairs.length > 0) {
         tableHTML += `
-          <table>
+          <table style="
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 600px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+          ">
             <thead>
-              <tr>
-                <th>Member 1</th>
-                <th>Member 2</th>
+              <tr style="background-color: #f2f2f2;">
+                <th style="border: 1px solid #ddd; padding: 10px;">Member 1</th>
+                <th style="border: 1px solid #ddd; padding: 10px;">Member 2</th>
               </tr>
             </thead>
             <tbody>
               ${pairs.map(pair => `
                 <tr>
-                  <td>${pair[0]}</td>
-                  <td>${pair[1]}</td>
+                  <td style="border: 1px solid #ddd; padding: 10px;">${pair[0]}</td>
+                  <td style="border: 1px solid #ddd; padding: 10px;">${pair[1]}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -183,50 +198,61 @@ async function fetchWeeklySchedule(teamId, queryDate) {
     });
 
     const result = await response.json();
+    const container = document.getElementById("schedule-container");
 
-    if (!response.ok) {
+    if (!result.data) {
+      container.innerHTML = "<p style='color: red;'>Team Not Found</p>";
       throw new Error(result.message || "Failed to fetch schedule");
     }
 
-    const container = document.getElementById("schedule-container");
     container.innerHTML = "";
 
     const table = document.createElement("table");
     table.style.borderCollapse = "collapse";
-    table.style.width = "600px";
-    table.style.textAlign = "left";
+    table.style.width = "100%";
+    table.style.maxWidth = "700px";
+    table.style.margin = "0 auto";
+    table.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
+    table.style.fontFamily = "Arial, sans-serif";
+    table.style.fontSize = "14px";
 
     const headerRow = document.createElement("tr");
     ["Date", "Pair", "Day"].forEach(text => {
       const th = document.createElement("th");
       th.textContent = text;
-      th.style.border = "1px solid #ccc";
-      th.style.padding = "8px";
-      th.style.backgroundColor = "#f2f2f2";
+      th.style.border = "1px solid #ddd";
+      th.style.padding = "12px";
+      th.style.backgroundColor = "#f4f4f4";
+      th.style.color = "#333";
       headerRow.appendChild(th);
     });
     table.appendChild(headerRow);
 
+    const today = new Date().toISOString().split("T")[0]; 
+
     result.data.forEach(entry => {
       const row = document.createElement("tr");
 
+      if (entry.date === today) {
+        row.style.backgroundColor = "#e0ffe0";
+      }
+
       const dateCell = document.createElement("td");
       dateCell.textContent = entry.date;
-      dateCell.style.border = "1px solid #ccc";
-      dateCell.style.padding = "8px";
-      
+      dateCell.style.border = "1px solid #ddd";
+      dateCell.style.padding = "10px";
+
       const pairCell = document.createElement("td");
       pairCell.textContent = Array.isArray(entry.pair)
         ? entry.pair.join(" , ")
         : entry.pair;
-      pairCell.style.border = "1px solid #ccc";
-      pairCell.style.padding = "8px";
+      pairCell.style.border = "1px solid #ddd";
+      pairCell.style.padding = "10px";
 
       const dayCell = document.createElement("td");
       dayCell.textContent = entry.day;
-      dayCell.style.border = "1px solid #ccc";
-      dayCell.style.padding = "8px";
-
+      dayCell.style.border = "1px solid #ddd";
+      dayCell.style.padding = "10px";
 
       row.appendChild(dateCell);
       row.appendChild(pairCell);
@@ -234,7 +260,6 @@ async function fetchWeeklySchedule(teamId, queryDate) {
       table.appendChild(row);
     });
 
-    // Add the table to the container
     container.appendChild(table);
 
   } catch (error) {
