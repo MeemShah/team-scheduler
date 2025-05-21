@@ -244,7 +244,7 @@ async function fetchWeeklySchedule(teamId, queryDate) {
 
       const pairCell = document.createElement("td");
       pairCell.textContent = Array.isArray(entry.pair)
-        ? entry.pair.join(" , ")
+        ? entry.pair.join(", ")
         : entry.pair;
       pairCell.style.border = "1px solid #ddd";
       pairCell.style.padding = "10px";
