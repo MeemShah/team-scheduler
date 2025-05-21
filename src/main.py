@@ -19,7 +19,7 @@ configure_logger(LogLevels.info)
 
 app = FastAPI()
 app = EnableCors(app)
-configure_startup(app,config,scheduler)
+configure_startup(app,config, scheduler)
 
 register_routes(app)
 
