@@ -12,15 +12,20 @@ class Database:
         self.config = config
         self._engine = None
         self._setup_engine()
-        #self._initialize_schema()
+        # Uncomment the following line if schema initialization is required
+        # self._initialize_schema()
 
     def _setup_engine(self):
         try:
-            db_url = (f"postgresql+psycopg2://{self.config.user}:{self.config.password}"
-                      f"@{self.config.host}:{self.config.port}/{self.config.name}")
+            db_url = (
+                f"postgresql+psycopg2://{self.config.user}:{self.config.password}"
+                f"@{self.config.host}:{self.config.port}/{self.config.name}"
+            )
             connect_args = {"sslmode": "require"} if self.config.enable_ssl_mode else {}
-            
-            self._engine = create_engine(db_url, connect_args=connect_args, pool_pre_ping=True)
+
+            self._engine = create_engine(
+                db_url, connect_args=connect_args, pool_pre_ping=True
+            )
             logger.info("Database engine initialized successfully.")
         except SQLAlchemyError as e:
             logger.critical("Failed to create database engine!", exc_info=True)
@@ -47,4 +52,3 @@ class Database:
             raise
         finally:
             session.close()
-

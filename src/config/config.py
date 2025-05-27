@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
 class DBConfig:
     def __init__(self):
         self.host = os.getenv("DB_HOST")
@@ -39,12 +40,9 @@ class DBConfig:
 
 class Config:
     def __init__(self):
-
-
         self.mode = os.getenv("MODE")
         self.service_name = os.getenv("SERVICE_NAME")
         self.http_port = int(os.getenv("HTTP_PORT"))
-        
         self.db_config = DBConfig()
         self.validate()
 
@@ -63,8 +61,5 @@ class Config:
             "mode": self.mode,
             "service_name": self.service_name,
             "http_port": self.http_port,
-            "grpc_port": self.grpc_port,
-            "jwt_secret": self.jwt_secret,
-            "migration_source": self.migration_source,
-            "db": self.db.to_dict(), 
+            "db": self.db_config.to_dict(),
         }
