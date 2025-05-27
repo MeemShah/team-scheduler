@@ -129,13 +129,10 @@ async function getTeamInfo(teamId) {
 
 
 function searchTeam() {
-  let dateInput = document.getElementById('dateInput').value;
+  let dateInput = document.getElementById('dateInput').value || new Date().toISOString().split('T')[0];
   const teamIdInput = document.getElementById('teamIdInput').value.trim();
-  const searchTerm = document.getElementById('searchTermInput')?.value.trim() || '';
 
   if (teamIdInput) localStorage.setItem('lastTeamId', teamIdInput);
-  if (dateInput) localStorage.setItem('lastDateInput', dateInput);
-  localStorage.setItem('lastSearchTerm', searchTerm);
 
   fetchWeeklySchedule(teamIdInput, dateInput)
 
