@@ -2,6 +2,8 @@ from typing import List, Optional
 from datetime import date
 from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, JSON
+from sqlalchemy.orm import relationship
+
 
 class Teams(SQLModel, table=True):
     __tablename__ = "teams"
@@ -15,7 +17,15 @@ class Teams(SQLModel, table=True):
     )
     initial_start_date: date
 
-    team_member_pairs: List["TeamMemberPair"] = Relationship(back_populates="team")
+    team_member_pairs: List["TeamMemberPair"] = Relationship(
+        back_populates="team",
+        sa_relationship=relationship(
+            "TeamMemberPair",
+            back_populates="team",
+            order_by=lambda: TeamMemberPair.id,
+            lazy="selectin"
+        )
+    )
 
 
 class TeamMemberPair(SQLModel, table=True):
