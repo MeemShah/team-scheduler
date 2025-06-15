@@ -171,7 +171,7 @@ function showConfetti() {
 
 window.onload = () => {
   const savedTeamId = localStorage.getItem('lastTeamId') || '1';
-  const savedDate = localStorage.getItem('lastDateInput') || new Date().toISOString().split('T')[0];
+  const savedDate = new Date().toISOString().split('T')[0];
   const savedSearchTerm = localStorage.getItem('lastSearchTerm') || '';
 
   document.getElementById('teamIdInput').value = savedTeamId;
